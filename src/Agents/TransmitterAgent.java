@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -29,10 +30,11 @@ public class TransmitterAgent extends Agent{
     JFrame frame = new JFrame();
     JPanel panel = new JPanel();
     JLabel contactLabel = new JLabel();
-    String contactName = (frame.getTitle().equals("Bravo")) ? "Alfa" : "Bravo";
+    String contactName = "Bravo";
     JTextArea chatTextArea = new JTextArea();
     JTextField newMessageTextField = new JTextField();
     JButton sendButton = new JButton("Enviar");
+    JScrollPane chatPane = new JScrollPane(chatTextArea);
 
     Font redHat = new Font("Red Hat Display", 0, 18);
     Font redHatChat = new Font("Red Hat Display", 0, 12);
@@ -51,18 +53,8 @@ public class TransmitterAgent extends Agent{
             public void action() {
                 ACLMessage receivedMessage = receive();
                 if(receivedMessage != null){
-                    System.out.println("Alfa> Bravo says: "+ receivedMessage.getContent());
-                    ACLMessage responseMessage = receivedMessage.createReply();
-                    System.out.print("Alfa> To Bravo: ");
-                    String responseText = new Scanner(System.in).nextLine();
-                    if(responseText.equals("exit")){
-                        System.out.println("Alfa> See you!\n---------------");
-                        doDelete();
-                        System.exit(0);
-                    }
-
-                    responseMessage.setContent(responseText);
-                    send(responseMessage);
+                    printReceivedMessage(receivedMessage.getContent());
+                    //ACLMessage responseMessage = receivedMessage.createReply();
                 }else{
                     block();
                 }
@@ -92,7 +84,12 @@ public class TransmitterAgent extends Agent{
         contactLabel.setForeground(gray);
         contactLabel.setBounds(0, 0, 400, 50);
         
-        chatTextArea.setBounds(0, 51, 400, 441);
+        chatPane.setBounds(0, 50, 400, 441);
+        chatPane.setFont(redHatChat);
+        chatPane.setBackground(gray);
+        chatPane.setForeground(darkGray);
+        
+        chatTextArea.setBounds(0, 50, 400, 441);
         chatTextArea.setFont(redHatChat);
         chatTextArea.setBackground(gray);
         chatTextArea.setForeground(darkGray);
@@ -109,14 +106,18 @@ public class TransmitterAgent extends Agent{
         panel.add(contactLabel);
         panel.add(newMessageTextField);
         panel.add(sendButton);
-        panel.add(chatTextArea);
+        panel.add(chatPane);
     }
     
     private void initListeners(){
         sendButton.addActionListener((ActionEvent e) -> {
-            chatTextArea.setText(chatTextArea.getText() + "\nTu: " + newMessageTextField.getText());
-            message.setContent(newMessageTextField.getText());
-            send(message);
+            if(chatTextArea.getText().equals("")){
+                chatTextArea.setText("Tu: " + getMessage());
+            }else{
+                chatTextArea.setText(chatTextArea.getText() + "\nTu: " + getMessage());
+                message.setContent(getMessage());
+                send(message);
+            }
         });
     }
     
@@ -125,6 +126,10 @@ public class TransmitterAgent extends Agent{
     }
     
     public void printReceivedMessage(String message){
-        chatTextArea.setText(chatTextArea.getText() + "\n" + contactName + ": " + message);
+        if(chatTextArea.getText().equals("")){
+            chatTextArea.setText(contactName + ": " + message);
+        }else{
+            chatTextArea.setText(chatTextArea.getText() + "\n" + contactName + ": " + message);
+        }
     }
 }
