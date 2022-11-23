@@ -114,9 +114,9 @@ public class ReceiverAgent extends Agent{
                 chatTextArea.setText("Tu: " + getMessage());
             }else{
                 chatTextArea.setText(chatTextArea.getText() + "\nTu: " + getMessage());
-                message.setContent(getMessage());
-                send(message);
             }
+            message.setContent(getMessage());
+            send(message);
         });
     }
     
